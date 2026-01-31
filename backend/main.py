@@ -2,7 +2,8 @@
 # main.py - FastAPI Application Entry Point
 # =============================================================================
 # This is the main file that runs the Teacher Planner API server.
-# It initializes the FastAPI application and sets up the database.
+# It initializes the FastAPI application, sets up the database, and
+# includes all the API routers.
 #
 # To run the server:
 #   cd backend
@@ -26,6 +27,17 @@ from database import engine, Base
 # Even though we don't use these imports directly here, they must be imported
 # so that Base.metadata includes all the table definitions.
 from models import Settings, Subject, Lesson, Note, Resource, Todo
+
+# -----------------------------------------------------------------------------
+# Import Routers
+# -----------------------------------------------------------------------------
+# Each router handles a specific area of functionality.
+# They're defined in separate files to keep the code organised.
+# -----------------------------------------------------------------------------
+from routers import settings as settings_router
+from routers import subjects as subjects_router
+from routers import lessons as lessons_router
+from routers import lesson_items as lesson_items_router
 
 
 # -----------------------------------------------------------------------------
@@ -61,14 +73,14 @@ async def lifespan(app: FastAPI):
     # - First run: Creates all tables
     # - Subsequent runs: Does nothing (tables already exist)
     # -------------------------------------------------------------------------
-    print("🚀 Starting up Teacher Planner API...")
-    print("📚 Creating database tables if they don't exist...")
+    print("Starting up Teacher Planner API...")
+    print("Creating database tables if they don't exist...")
 
     # Create all tables defined in our models
     Base.metadata.create_all(bind=engine)
 
-    print("✅ Database ready!")
-    print("📖 API documentation available at: http://localhost:8000/docs")
+    print("Database ready!")
+    print("API documentation available at: http://localhost:8000/docs")
 
     # The 'yield' separates startup from shutdown code
     # Everything before yield runs on startup
@@ -78,7 +90,7 @@ async def lifespan(app: FastAPI):
     # -------------------------------------------------------------------------
     # SHUTDOWN: Cleanup (if needed)
     # -------------------------------------------------------------------------
-    print("👋 Shutting down Teacher Planner API...")
+    print("Shutting down Teacher Planner API...")
 
 
 # -----------------------------------------------------------------------------
@@ -96,14 +108,30 @@ app = FastAPI(
     A self-hosted teacher planner API for Victorian schools.
 
     ## Features
-    - 10-day timetable cycle (Week A/B) support
-    - Customizable periods per day
-    - Subject management by year and semester
-    - Lesson tracking with attached notes, resources, and todos
+    - **10-day timetable cycle (Week A/B)** support with automatic calculation
+    - **Customisable periods per day** via settings
+    - **Subject management** by year and semester
+    - **Lesson tracking** with attached notes, resources, and todos
+
+    ## Week A/B Calculation
+
+    The API calculates which day of the timetable cycle any date falls on:
+
+    1. Set `cycle_start_date` in settings to the Monday of Week A at term start
+    2. Query `/lessons/week?start_date=YYYY-MM-DD` to get the timetable
+    3. Each day includes `cycle_day` (1-10) and `week_label` (Week A/B)
 
     ## Clients
     - Web frontend (React)
     - iOS app (SwiftUI) for iPad
+
+    ## Quick Start
+
+    1. Configure settings: `PUT /settings` with `cycle_start_date`
+    2. Create subjects: `POST /subjects`
+    3. Create lessons: `POST /lessons`
+    4. Add notes/resources/todos: `POST /lessons/{id}/notes`, etc.
+    5. View timetable: `GET /lessons/week?start_date=2025-02-03`
     """,
 
     # Version of your API - useful for tracking changes
@@ -144,6 +172,24 @@ app.add_middleware(
 
 
 # -----------------------------------------------------------------------------
+# Include Routers
+# -----------------------------------------------------------------------------
+# Each router adds its endpoints to the main app.
+# The prefix and tags are defined in each router file.
+#
+# After including these, the app will have endpoints like:
+# - GET /settings
+# - GET /subjects, POST /subjects, etc.
+# - GET /lessons/week, POST /lessons, etc.
+# - POST /lessons/{id}/notes, etc.
+# -----------------------------------------------------------------------------
+app.include_router(settings_router.router)
+app.include_router(subjects_router.router)
+app.include_router(lessons_router.router)
+app.include_router(lesson_items_router.router)
+
+
+# -----------------------------------------------------------------------------
 # Root Endpoint
 # -----------------------------------------------------------------------------
 # A simple endpoint to verify the API is running.
@@ -162,7 +208,13 @@ async def root():
     return {
         "message": "Welcome to the Teacher Planner API",
         "documentation": "/docs",
-        "version": "0.1.0"
+        "version": "0.1.0",
+        "endpoints": {
+            "settings": "/settings",
+            "subjects": "/subjects",
+            "lessons": "/lessons",
+            "week_view": "/lessons/week?start_date=YYYY-MM-DD",
+        }
     }
 
 
@@ -188,26 +240,3 @@ async def health_check():
         "status": "healthy",
         "service": "teacher-planner-api"
     }
-
-
-# =============================================================================
-# NEXT STEPS
-# =============================================================================
-# This is the basic structure. The next phase will add:
-#
-# 1. Pydantic Schemas (schemas.py)
-#    - Define request/response models for data validation
-#
-# 2. CRUD Operations (crud.py)
-#    - Create, Read, Update, Delete functions for each model
-#
-# 3. API Routes (routers/)
-#    - /subjects - Subject management endpoints
-#    - /lessons - Lesson management endpoints
-#    - /notes, /resources, /todos - Attached items endpoints
-#    - /settings - Application settings endpoints
-#
-# 4. File Upload Handling
-#    - Endpoint for uploading resources (PDFs, images, etc.)
-#
-# =============================================================================

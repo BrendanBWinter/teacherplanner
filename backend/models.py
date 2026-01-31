@@ -84,6 +84,32 @@ class Settings(Base):
     # Victorian schools often use a 10-day cycle (Week A and Week B).
     cycle_length: Mapped[int] = mapped_column(Integer, default=10, nullable=False)
 
+    # -------------------------------------------------------------------------
+    # WEEK A/B CALCULATION: The Cycle Start Date
+    # -------------------------------------------------------------------------
+    # To determine whether any given date is in Week A (Days 1-5) or Week B
+    # (Days 6-10), we need a reference point: the date when Day 1 of the
+    # cycle begins.
+    #
+    # HOW WEEK A/B CALCULATION WORKS:
+    # --------------------------------
+    # 1. Set cycle_start_date to the Monday of Week A at the start of term
+    # 2. For any date, count the number of WORKING DAYS since cycle_start_date
+    # 3. Use modulo (%) to find position in the cycle:
+    #    cycle_day = (working_days_since_start % cycle_length) + 1
+    # 4. Days 1-5 = Week A, Days 6-10 = Week B
+    #
+    # Example:
+    #   cycle_start_date = 2025-01-27 (Monday, Week A, Day 1)
+    #   Query date = 2025-02-03 (Monday, one week later)
+    #   Working days between = 5 (Mon-Fri of first week)
+    #   cycle_day = (5 % 10) + 1 = 6 → Week B, Day 1 of Week B
+    #
+    # IMPORTANT: Weekends are skipped in the count. Holidays need separate
+    # handling (future enhancement: a holidays table to skip those dates).
+    # -------------------------------------------------------------------------
+    cycle_start_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
+
 
 # =============================================================================
 # SUBJECT MODEL

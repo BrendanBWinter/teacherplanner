@@ -1,0 +1,42 @@
+# =============================================================================
+# Teacher Planner - Backend Dependencies
+# =============================================================================
+# This file lists all Python packages required to run the FastAPI backend.
+# Install with: pip install -r requirements.txt
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Web Framework
+# -----------------------------------------------------------------------------
+# FastAPI: Modern, fast web framework for building APIs with Python 3.7+
+# It provides automatic API documentation, request validation, and async support.
+fastapi>=0.109.0
+
+# Uvicorn: ASGI server that runs our FastAPI application.
+# The [standard] extra includes useful additions like watchfiles for auto-reload.
+uvicorn[standard]>=0.27.0
+
+# -----------------------------------------------------------------------------
+# Database
+# -----------------------------------------------------------------------------
+# SQLAlchemy: The Python SQL toolkit and ORM (Object-Relational Mapper).
+# We use it to define our database models as Python classes and interact
+# with SQLite without writing raw SQL queries.
+sqlalchemy>=2.0.0
+
+# -----------------------------------------------------------------------------
+# Data Validation
+# -----------------------------------------------------------------------------
+# Pydantic: Data validation library used by FastAPI for request/response models.
+# It ensures data coming into our API matches expected types and formats.
+# (Note: Pydantic is also a dependency of FastAPI, but we list it explicitly
+# for clarity and to ensure we have a recent version.)
+pydantic>=2.0.0
+
+# -----------------------------------------------------------------------------
+# File Handling
+# -----------------------------------------------------------------------------
+# Python-Multipart: Required for handling file uploads in FastAPI.
+# When teachers upload resources (PDFs, images, etc.), this library
+# processes the multipart form data.
+python-multipart>=0.0.6

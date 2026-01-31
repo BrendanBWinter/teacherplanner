@@ -1,0 +1,344 @@
+/* =============================================================================
+   LessonDetail.css - Styles for the Lesson Detail Modal
+   ============================================================================= */
+
+/* Overlay that covers the entire screen */
+.lesson-detail-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+/* The modal container */
+.lesson-detail-modal {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+/* -----------------------------------------------------------------------------
+   Header
+   ----------------------------------------------------------------------------- */
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.25rem;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  border-radius: 12px 12px 0 0;
+}
+
+.header-info h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #1a1a2e;
+}
+
+.week-badge {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background: #1a1a2e;
+  color: white;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.close-btn:hover {
+  background: #e0e0e0;
+  color: #333;
+}
+
+/* -----------------------------------------------------------------------------
+   Error Message
+   ----------------------------------------------------------------------------- */
+
+.error-message {
+  padding: 0.75rem 1.25rem;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-bottom: 1px solid #fecaca;
+}
+
+/* -----------------------------------------------------------------------------
+   Subject Section
+   ----------------------------------------------------------------------------- */
+
+.subject-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.subject-section label {
+  font-weight: 600;
+  color: #333;
+}
+
+.subject-section select {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.subject-color-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+/* -----------------------------------------------------------------------------
+   Tabs
+   ----------------------------------------------------------------------------- */
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tab {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #666;
+  transition: all 0.15s ease;
+}
+
+.tab:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.tab.active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+  font-weight: 600;
+}
+
+/* -----------------------------------------------------------------------------
+   Tab Content
+   ----------------------------------------------------------------------------- */
+
+.tab-content {
+  padding: 1.25rem;
+  min-height: 300px;
+}
+
+/* Add form */
+.add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.add-form.inline {
+  flex-direction: row;
+}
+
+.add-form.inline input {
+  flex: 1;
+}
+
+.add-form input,
+.add-form textarea {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.add-form input:focus,
+.add-form textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.add-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.add-btn {
+  padding: 0.6rem 1rem;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.15s ease;
+}
+
+.add-btn:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.add-btn:disabled {
+  background: #93c5fd;
+  cursor: not-allowed;
+}
+
+/* Items list */
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.empty-message {
+  color: #666;
+  text-align: center;
+  padding: 2rem;
+  font-style: italic;
+}
+
+/* Item cards */
+.item-card {
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  position: relative;
+}
+
+.item-title {
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+  color: #1a1a2e;
+}
+
+.item-content {
+  color: #4b5563;
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: none;
+  border: 1px solid #fca5a5;
+  color: #dc2626;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background: #fee2e2;
+}
+
+/* -----------------------------------------------------------------------------
+   Todo Specific Styles
+   ----------------------------------------------------------------------------- */
+
+.item-card.todo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.item-card.todo.completed {
+  opacity: 0.6;
+  background: #f0f0f0;
+}
+
+.item-card.todo.completed .todo-content {
+  text-decoration: line-through;
+}
+
+.todo-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  cursor: pointer;
+}
+
+.todo-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.todo-content {
+  color: #333;
+}
+
+/* -----------------------------------------------------------------------------
+   Resource Specific Styles
+   ----------------------------------------------------------------------------- */
+
+.resource-link {
+  display: block;
+  color: #2563eb;
+  font-size: 0.85rem;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resource-link:hover {
+  text-decoration: underline;
+}
+
+/* -----------------------------------------------------------------------------
+   Loading Overlay
+   ----------------------------------------------------------------------------- */
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #2563eb;
+  border-radius: 12px;
+}

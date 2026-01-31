@@ -1,0 +1,189 @@
+/* =============================================================================
+   App.css - Main Application Styles
+   =============================================================================
+   This file contains global styles and styles for the main App component.
+   ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   CSS Reset & Base Styles
+   ----------------------------------------------------------------------------- */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: #f0f2f5;
+  color: #1a1a2e;
+  line-height: 1.5;
+}
+
+/* -----------------------------------------------------------------------------
+   App Container
+   ----------------------------------------------------------------------------- */
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* -----------------------------------------------------------------------------
+   Header
+   ----------------------------------------------------------------------------- */
+
+.app-header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: white;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.app-header p {
+  margin: 0.25rem 0 0 0;
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+/* -----------------------------------------------------------------------------
+   Main Content Area
+   ----------------------------------------------------------------------------- */
+
+.app-main {
+  flex: 1;
+  padding: 1rem;
+}
+
+/* -----------------------------------------------------------------------------
+   Week Navigation
+   ----------------------------------------------------------------------------- */
+
+.week-navigation {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.week-navigation button {
+  padding: 0.6rem 1.25rem;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+  transition: all 0.15s ease;
+}
+
+.week-navigation button:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.week-navigation button:active {
+  background: #e5e7eb;
+}
+
+/* Today button - slightly different style */
+.week-navigation button:nth-child(2) {
+  background: #1a1a2e;
+  color: white;
+  border-color: #1a1a2e;
+}
+
+.week-navigation button:nth-child(2):hover {
+  background: #16213e;
+}
+
+/* -----------------------------------------------------------------------------
+   Loading & Error States
+   ----------------------------------------------------------------------------- */
+
+.app-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  font-size: 1.25rem;
+  color: #666;
+}
+
+.app-error {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem auto;
+  max-width: 600px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.app-error button {
+  padding: 0.5rem 1rem;
+  background: #b91c1c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.app-error button:hover {
+  background: #991b1b;
+}
+
+/* -----------------------------------------------------------------------------
+   Footer
+   ----------------------------------------------------------------------------- */
+
+.app-footer {
+  background: #1a1a2e;
+  color: white;
+  padding: 0.75rem 2rem;
+  text-align: center;
+}
+
+.app-footer p {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+/* -----------------------------------------------------------------------------
+   Responsive Adjustments
+   ----------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .app-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .app-main {
+    padding: 0.5rem;
+  }
+
+  .week-navigation button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+}

@@ -1,0 +1,285 @@
+/* =============================================================================
+   TimetableGrid.css - Styles for the Timetable Display
+   =============================================================================
+   This stylesheet uses CSS Grid for the timetable layout.
+
+   CSS GRID EXPLANATION:
+   ---------------------
+   CSS Grid is perfect for this use case because:
+   1. We have a fixed number of columns (period label + 5 days = 6 columns)
+   2. We have a dynamic number of rows (header + periods)
+   3. We want equal-width columns that resize with the container
+
+   The grid is created with:
+   - display: grid
+   - grid-template-columns: defines column sizes
+   - Each child becomes a grid cell
+   ============================================================================= */
+
+/* Container for the entire timetable */
+.timetable-container {
+  padding: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Loading state */
+.timetable-loading {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+}
+
+/* Header with week info */
+.timetable-header {
+  margin-bottom: 1rem;
+}
+
+.timetable-header h2 {
+  margin: 0;
+  color: #1a1a2e;
+  font-size: 1.5rem;
+}
+
+/* -----------------------------------------------------------------------------
+   THE GRID
+   ----------------------------------------------------------------------------- */
+
+.timetable-grid {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Header row - day names */
+.grid-header {
+  display: grid;
+  /* 6 columns: 80px for period label, then 5 equal columns for days */
+  grid-template-columns: 80px repeat(5, 1fr);
+  background: #1a1a2e;
+  color: white;
+}
+
+/* Each row of the grid */
+.grid-row {
+  display: grid;
+  grid-template-columns: 80px repeat(5, 1fr);
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.grid-row:last-child {
+  border-bottom: none;
+}
+
+/* -----------------------------------------------------------------------------
+   PERIOD LABELS (left column)
+   ----------------------------------------------------------------------------- */
+
+.period-label {
+  padding: 1rem 0.5rem;
+  text-align: center;
+  font-weight: 600;
+  color: #666;
+  background: #f5f5f5;
+  border-right: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+
+.period-label.header {
+  background: #1a1a2e;
+  color: white;
+  border-right-color: rgba(255, 255, 255, 0.1);
+}
+
+/* -----------------------------------------------------------------------------
+   DAY HEADERS
+   ----------------------------------------------------------------------------- */
+
+.day-header {
+  padding: 0.75rem;
+  text-align: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.day-header:last-child {
+  border-right: none;
+}
+
+.day-name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.day-date {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-top: 0.25rem;
+}
+
+.day-cycle {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+.day-cycle.week-a {
+  background: rgba(59, 130, 246, 0.3);
+}
+
+.day-cycle.week-b {
+  background: rgba(16, 185, 129, 0.3);
+}
+
+/* -----------------------------------------------------------------------------
+   TIMETABLE SLOTS
+   ----------------------------------------------------------------------------- */
+
+.timetable-slot {
+  min-height: 80px;
+  padding: 0.5rem;
+  border-right: 1px solid #e0e0e0;
+  border-left: 4px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.timetable-slot:last-child {
+  border-right: none;
+}
+
+.timetable-slot:hover {
+  background-color: #f0f7ff;
+}
+
+/* Empty slot styling */
+.timetable-slot.empty {
+  background-color: #fafafa;
+}
+
+.timetable-slot.empty:hover {
+  background-color: #f0f0f0;
+}
+
+.slot-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 1.5rem;
+  color: #ccc;
+}
+
+/* Slot with lesson */
+.timetable-slot.has-lesson {
+  background-color: #fff;
+}
+
+.slot-subject {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1a1a2e;
+  margin-bottom: 0.25rem;
+}
+
+.slot-title {
+  font-size: 0.75rem;
+  color: #666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* -----------------------------------------------------------------------------
+   INDICATORS (notes, todos, resources)
+   ----------------------------------------------------------------------------- */
+
+.slot-indicators {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.indicator {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* Notes indicator - blue */
+.indicator.notes {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* Notes indicator icon (using text for simplicity) */
+.indicator.notes::before {
+  content: "N: ";
+}
+
+/* Todos indicator - amber/orange */
+.indicator.todos {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.indicator.todos::before {
+  content: "T: ";
+}
+
+.indicator.todos.has-incomplete {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+/* Resources indicator - purple */
+.indicator.resources {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.indicator.resources::before {
+  content: "R: ";
+}
+
+/* -----------------------------------------------------------------------------
+   RESPONSIVE ADJUSTMENTS
+   ----------------------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .timetable-grid {
+    font-size: 0.85rem;
+  }
+
+  .grid-header,
+  .grid-row {
+    grid-template-columns: 60px repeat(5, 1fr);
+  }
+
+  .period-label {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.25rem;
+  }
+
+  .timetable-slot {
+    min-height: 60px;
+    padding: 0.35rem;
+  }
+
+  .day-header {
+    padding: 0.5rem 0.25rem;
+  }
+
+  .day-name {
+    font-size: 0.85rem;
+  }
+}

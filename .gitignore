@@ -1,0 +1,30 @@
+# --- Python/FastAPI ---
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# --- Node/React ---
+node_modules/
+dist/
+.DS_Store
+
+# --- iOS/Xcode ---
+build/
+*.mode1v3
+*.mode2v3
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.perspectivev3
+*.xcworkspace
+!default.xcworkspace
+xcuserdata/
+*.xccheckout
+*.moved-aside
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM

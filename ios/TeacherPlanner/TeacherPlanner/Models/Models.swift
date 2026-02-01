@@ -48,8 +48,16 @@ struct Settings: Codable, Identifiable {
 // MARK: - Subject
 // =============================================================================
 // A subject/class being taught, e.g., "Year 11 Modern History"
+//
+// HASHABLE CONFORMANCE:
+// --------------------
+// Subject must conform to Hashable because it's used in SidebarItem enum:
+//   enum SidebarItem: Hashable { case subject(Subject) }
+// Swift can auto-synthesize Hashable when all properties are Hashable.
+// Since all our properties (Int, String, String?, Bool) are Hashable, we
+// just need to declare conformance and Swift handles the implementation.
 
-struct Subject: Codable, Identifiable {
+struct Subject: Codable, Identifiable, Hashable {
     let id: Int
     let name: String
     let code: String?
@@ -264,6 +272,21 @@ struct CreateLessonRequest: Codable {
 
     enum CodingKeys: String, CodingKey {
         case date, period, title
+        case subjectId = "subject_id"
+    }
+}
+
+/// Used to update a lesson's subject assignment.
+/// WHY A STRUCT INSTEAD OF DICTIONARY?
+/// -----------------------------------
+/// Swift cannot encode `[String: Int]` as a `Codable` parameter because:
+/// 1. Dictionary literals infer their type (e.g., `["key": 1]` is `[String: Int]`)
+/// 2. Generic functions need compile-time type knowledge for encoding
+/// 3. Using a struct gives Swift the exact type information it needs
+struct UpdateLessonRequest: Codable {
+    let subjectId: Int
+
+    enum CodingKeys: String, CodingKey {
         case subjectId = "subject_id"
     }
 }

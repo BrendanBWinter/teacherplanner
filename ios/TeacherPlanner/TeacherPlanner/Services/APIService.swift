@@ -100,11 +100,22 @@ class APIService {
     }
 
     // =========================================================================
-    // MARK: - Generic Request Method
+    // MARK: - Generic Request Methods
     // =========================================================================
-    // This is the core method that all API calls use.
-    // It's generic over T: Codable, meaning it can decode any type that
-    // conforms to Codable.
+    // These are the core methods that all API calls use.
+    // They're generic over T: Decodable (response) and B: Encodable (request body).
+    //
+    // WHY TWO METHODS?
+    // ----------------
+    // Swift cannot encode "existential types" (like `Codable?` or `any Codable`).
+    // If we wrote `body: Codable?`, the compiler would fail at encoder.encode(body)
+    // because it doesn't know the concrete type at compile time.
+    //
+    // Solution: Use generics! We have:
+    // 1. request<T>(endpoint:method:) - For requests WITHOUT a body (GET, DELETE)
+    // 2. request<T, B>(endpoint:method:body:) - For requests WITH a body (POST, PUT)
+    //
+    // With generics, Swift knows the exact type at compile time and can encode it.
     //
     // ASYNC/AWAIT EXPLANATION:
     // ------------------------
@@ -114,10 +125,10 @@ class APIService {
     // - The function suspends at 'await' points without blocking the thread
     // =========================================================================
 
-    private func request<T: Codable>(
+    /// Request WITHOUT a body (for GET requests)
+    private func request<T: Decodable>(
         endpoint: String,
-        method: String = "GET",
-        body: Codable? = nil
+        method: String = "GET"
     ) async throws -> T {
         // Build the URL
         guard let url = URL(string: "\(baseURL)\(endpoint)") else {
@@ -128,11 +139,6 @@ class APIService {
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        // Add body if provided
-        if let body = body {
-            request.httpBody = try encoder.encode(body)
-        }
 
         // Make the network call
         // 'await' suspends here until the network call completes
@@ -165,6 +171,57 @@ class APIService {
             if let emptyResult = Optional<T>.none as? T {
                 return emptyResult
             }
+        }
+
+        // Decode the response
+        do {
+            return try decoder.decode(T.self, from: data)
+        } catch {
+            throw APIError.decodingError(error)
+        }
+    }
+
+    /// Request WITH a body (for POST, PUT, PATCH requests)
+    /// B: Encodable is a generic type parameter - the compiler knows the exact type
+    /// at compile time, allowing proper encoding.
+    private func request<T: Decodable, B: Encodable>(
+        endpoint: String,
+        method: String,
+        body: B
+    ) async throws -> T {
+        // Build the URL
+        guard let url = URL(string: "\(baseURL)\(endpoint)") else {
+            throw APIError.invalidURL
+        }
+
+        // Create the request
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        // Encode the body - this works because B is a concrete generic type!
+        request.httpBody = try encoder.encode(body)
+
+        // Make the network call
+        let (data, response): (Data, URLResponse)
+        do {
+            (data, response) = try await URLSession.shared.data(for: request)
+        } catch {
+            throw APIError.networkError(error)
+        }
+
+        // Check HTTP status code
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+
+        // Handle error status codes
+        if httpResponse.statusCode < 200 || httpResponse.statusCode >= 300 {
+            let errorMessage = try? decoder.decode([String: String].self, from: data)["detail"]
+            throw APIError.httpError(
+                statusCode: httpResponse.statusCode,
+                message: errorMessage
+            )
         }
 
         // Decode the response
@@ -269,12 +326,15 @@ class APIService {
         )
     }
 
-    /// Update a lesson
+    /// Update a lesson's subject assignment
+    /// Note: We use UpdateLessonRequest struct instead of a dictionary because
+    /// Swift's generic system needs concrete types for encoding - dictionaries
+    /// don't satisfy the Encodable constraint properly in generic contexts.
     func updateLesson(id: Int, subjectId: Int) async throws -> Lesson {
         return try await request(
             endpoint: "/lessons/\(id)",
             method: "PUT",
-            body: ["subject_id": subjectId]
+            body: UpdateLessonRequest(subjectId: subjectId)
         )
     }
 
@@ -343,37 +403,20 @@ class APIService {
 }
 
 // =============================================================================
-// MARK: - Dictionary Extension for Codable
+// NOTE: Dictionary Encodable Extension Removed
 // =============================================================================
-// Allow dictionaries to be used as request bodies
-
-extension Dictionary: Encodable where Key == String, Value == Any {
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: DynamicCodingKey.self)
-        for (key, value) in self {
-            let codingKey = DynamicCodingKey(stringValue: key)!
-            if let intValue = value as? Int {
-                try container.encode(intValue, forKey: codingKey)
-            } else if let stringValue = value as? String {
-                try container.encode(stringValue, forKey: codingKey)
-            } else if let boolValue = value as? Bool {
-                try container.encode(boolValue, forKey: codingKey)
-            }
-        }
-    }
-}
-
-struct DynamicCodingKey: CodingKey {
-    var stringValue: String
-    var intValue: Int?
-
-    init?(stringValue: String) {
-        self.stringValue = stringValue
-        self.intValue = nil
-    }
-
-    init?(intValue: Int) {
-        self.stringValue = String(intValue)
-        self.intValue = intValue
-    }
-}
+// We previously had an extension to make [String: Any] Encodable, but this
+// approach has problems:
+//
+// 1. TYPE MISMATCH: Dictionary literals like ["key": 1] create [String: Int],
+//    not [String: Any], so the extension wouldn't apply.
+//
+// 2. GENERIC CONSTRAINTS: Even with the extension, passing dictionaries to
+//    generic functions with Encodable constraints doesn't work well because
+//    Swift can't prove at compile time that the extension applies.
+//
+// 3. BEST PRACTICE: Using dedicated Codable structs (like UpdateLessonRequest)
+//    is cleaner, type-safe, and provides better documentation of the API.
+//
+// All request bodies now use proper Codable structs defined in Models.swift.
+// =============================================================================

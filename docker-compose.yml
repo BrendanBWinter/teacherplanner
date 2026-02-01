@@ -1,0 +1,183 @@
+# =============================================================================
+# docker-compose.yml - Teacher Planner for Unraid
+# =============================================================================
+# This file defines how to run the Teacher Planner application using Docker.
+# It sets up two services:
+# 1. backend: FastAPI server with SQLite database
+# 2. frontend: React app served by Nginx
+#
+# TO RUN ON UNRAID:
+# -----------------
+# 1. Copy this project to your Unraid server (e.g., /mnt/user/appdata/teacherplanner)
+# 2. SSH into Unraid or use the terminal
+# 3. Navigate to the project directory
+# 4. Run: docker-compose up -d
+#
+# TO STOP:
+# --------
+# docker-compose down
+#
+# TO VIEW LOGS:
+# -------------
+# docker-compose logs -f
+#
+# =============================================================================
+# WHERE IS MY DATA STORED?
+# =============================================================================
+#
+# The SQLite database file will be stored at:
+#
+#   /mnt/user/appdata/teacherplanner/data/teacher_planner.db
+#
+# This path breaks down as:
+# - /mnt/user/appdata/teacherplanner: Where you put this project on Unraid
+# - /data: Subdirectory created by the volume mount
+# - teacher_planner.db: The actual database file
+#
+# IMPORTANT: This directory MUST exist and be writable!
+# The volume mount ensures your data survives container restarts/rebuilds.
+#
+# =============================================================================
+
+version: "3.8"
+
+services:
+  # ===========================================================================
+  # BACKEND SERVICE - FastAPI with SQLite
+  # ===========================================================================
+  backend:
+    # -------------------------------------------------------------------------
+    # Build Configuration
+    # -------------------------------------------------------------------------
+    # 'build' tells Docker to build the image from the Dockerfile in ./backend
+    # -------------------------------------------------------------------------
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    # -------------------------------------------------------------------------
+    # Container Name
+    # -------------------------------------------------------------------------
+    # Gives the container a predictable name (instead of random string)
+    # -------------------------------------------------------------------------
+    container_name: teacherplanner-backend
+
+    # -------------------------------------------------------------------------
+    # Port Mapping
+    # -------------------------------------------------------------------------
+    # Format: "HOST_PORT:CONTAINER_PORT"
+    # - The backend listens on port 8000 inside the container
+    # - We expose it on port 8000 on the host
+    # - Access the API at: http://your-unraid-ip:8000
+    # -------------------------------------------------------------------------
+    ports:
+      - "8000:8000"
+
+    # -------------------------------------------------------------------------
+    # Environment Variables
+    # -------------------------------------------------------------------------
+    # DATABASE_PATH tells the app where to store the SQLite database.
+    # This path is INSIDE the container - it maps to the volume below.
+    # -------------------------------------------------------------------------
+    environment:
+      - DATABASE_PATH=/app/data/teacher_planner.db
+
+    # -------------------------------------------------------------------------
+    # VOLUME MOUNT - CRITICAL FOR DATA PERSISTENCE
+    # -------------------------------------------------------------------------
+    # Format: "HOST_PATH:CONTAINER_PATH"
+    #
+    # This mounts a directory from your Unraid server INTO the container.
+    # When the app writes to /app/data inside the container, it's actually
+    # writing to ./data on your Unraid server.
+    #
+    # YOUR SQLITE DATA LIVES AT:
+    #   ${PWD}/data/teacher_planner.db
+    #
+    # On Unraid, if you put this project at /mnt/user/appdata/teacherplanner,
+    # your data will be at:
+    #   /mnt/user/appdata/teacherplanner/data/teacher_planner.db
+    #
+    # This survives:
+    # - Container restarts
+    # - Container rebuilds
+    # - Docker updates
+    # - As long as you don't delete the ./data folder!
+    # -------------------------------------------------------------------------
+    volumes:
+      - ./data:/app/data
+
+    # -------------------------------------------------------------------------
+    # Restart Policy
+    # -------------------------------------------------------------------------
+    # 'unless-stopped': Container restarts automatically unless you
+    # explicitly stop it with 'docker-compose down' or 'docker stop'
+    # -------------------------------------------------------------------------
+    restart: unless-stopped
+
+    # -------------------------------------------------------------------------
+    # Health Check
+    # -------------------------------------------------------------------------
+    # Docker periodically checks if the service is healthy.
+    # If unhealthy, dependent services won't start.
+    # -------------------------------------------------------------------------
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    # -------------------------------------------------------------------------
+    # Networks
+    # -------------------------------------------------------------------------
+    # Both services connect to the same network so they can communicate.
+    # The frontend can reach the backend at http://backend:8000
+    # -------------------------------------------------------------------------
+    networks:
+      - teacherplanner-network
+
+  # ===========================================================================
+  # FRONTEND SERVICE - React App with Nginx
+  # ===========================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+
+    container_name: teacherplanner-frontend
+
+    # -------------------------------------------------------------------------
+    # Port Mapping
+    # -------------------------------------------------------------------------
+    # - Nginx listens on port 80 inside the container
+    # - We expose it on port 3000 on the host
+    # - Access the web app at: http://your-unraid-ip:3000
+    # -------------------------------------------------------------------------
+    ports:
+      - "3000:80"
+
+    # -------------------------------------------------------------------------
+    # Dependencies
+    # -------------------------------------------------------------------------
+    # Wait for backend to be healthy before starting frontend.
+    # This ensures the API is ready when users access the web app.
+    # -------------------------------------------------------------------------
+    depends_on:
+      backend:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+    networks:
+      - teacherplanner-network
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+# Define a custom network for our services to communicate.
+# Services on the same network can reach each other by service name.
+# =============================================================================
+networks:
+  teacherplanner-network:
+    driver: bridge

@@ -1,0 +1,44 @@
+# =============================================================================
+# .dockerignore - Files to Exclude from Docker Build
+# =============================================================================
+# These files won't be copied into the Docker image, keeping it smaller
+# and preventing sensitive data from being included.
+# =============================================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+.venv/
+
+# Database files (we mount these as volumes instead)
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Tests
+tests/
+pytest.ini
+.pytest_cache/
+
+# Documentation
+*.md
+docs/

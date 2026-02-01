@@ -1,0 +1,41 @@
+# =============================================================================
+# .dockerignore - Files to Exclude from Docker Build
+# =============================================================================
+# These files won't be copied into the Docker image.
+# node_modules is the big one - npm ci will install fresh in the container.
+# =============================================================================
+
+# Dependencies (installed fresh in container)
+node_modules/
+
+# Build output (generated in container)
+dist/
+build/
+
+# Development files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Documentation
+*.md
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

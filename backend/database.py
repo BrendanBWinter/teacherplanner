@@ -12,6 +12,7 @@
 # - Base: The declarative base class that all our models inherit from.
 # =============================================================================
 
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
@@ -24,10 +25,16 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 # The three slashes (///) indicate a relative path. So this creates a file
 # called 'teacher_planner.db' in the same directory as this script.
 #
-# For production on Unraid, this path will be mounted to a Docker volume
-# to persist data between container restarts.
+# For production on Unraid, we use an environment variable to point to a
+# mounted volume directory, ensuring data persists between container restarts.
+#
+# ENVIRONMENT VARIABLE:
+# - DATABASE_PATH: Full path to the database file
+# - Default: ./teacher_planner.db (for local development)
+# - In Docker: /app/data/teacher_planner.db (mounted volume)
 # -----------------------------------------------------------------------------
-SQLALCHEMY_DATABASE_URL = "sqlite:///./teacher_planner.db"
+DATABASE_PATH = os.getenv("DATABASE_PATH", "./teacher_planner.db")
+SQLALCHEMY_DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
 
 # -----------------------------------------------------------------------------
 # Create the SQLAlchemy Engine
